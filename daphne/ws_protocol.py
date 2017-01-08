@@ -151,11 +151,11 @@ class WebSocketProtocol(WebSocketServerProtocol):
         else:
             self.sendMessage(content.encode("utf8"), binary)
 
-    def serverClose(self):
+    def serverClose(self, **kwargs):
         """
         Server-side channel message to close the socket
         """
-        self.sendClose()
+        self.sendClose(**kwargs)
 
     def onClose(self, wasClean, code, reason):
         if hasattr(self, "reply_channel"):

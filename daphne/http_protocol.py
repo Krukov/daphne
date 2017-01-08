@@ -305,7 +305,7 @@ class HTTPFactory(http.HTTPFactory):
             self.reply_protocols[channel].serverResponse(message)
         elif channel.startswith("websocket") and isinstance(self.reply_protocols[channel], WebSocketProtocol):
             # Ensure the message is a valid WebSocket one
-            unknown_message_keys = set(message.keys()) - {"bytes", "text", "close"}
+            unknown_message_keys = set(message.keys()) - {"bytes", "text", "close", "close_code"}
             if unknown_message_keys:
                 raise ValueError(
                     "Got invalid WebSocket reply message on %s - contains unknown keys %s" % (
@@ -318,7 +318,8 @@ class HTTPFactory(http.HTTPFactory):
             if message.get("text", None):
                 self.reply_protocols[channel].serverSend(message["text"], False)
             if message.get("close", False):
-                self.reply_protocols[channel].serverClose()
+                reason = message.get("close") if isinstance(message.get("close"), six.text_type) else None
+                self.reply_protocols[channel].serverClose(code=message.get("close_code", None), reason=reason)
         else:
             raise ValueError("Cannot dispatch message on channel %r" % channel)
 
